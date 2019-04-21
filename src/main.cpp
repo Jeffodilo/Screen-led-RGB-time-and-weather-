@@ -6,9 +6,9 @@
 #include <Fonts/FreeSerifBold9pt7b.h>
 
 
-const char ssid[] = "Wifi_Jeff";
-const char pass[] = "29031978";
-const char ServerMQTT[] = "192.168.1.100";
+const char ssid[] = "XXXXXXX";
+const char pass[] = "XXXXXXX";
+const char ServerMQTT[] = "192.168.X.X";
 
 WiFiClient net;
 MQTTClient client;
