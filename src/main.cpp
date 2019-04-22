@@ -5,8 +5,8 @@
 #include <ArduinoOTA.h> //platformio run --target upload
 #include <Fonts/FreeSansBold9pt7b.h>
 
-const char ssid[] = "Wifi_Jeff";
-const char pass[] = "29031978";
+const char ssid[] = "XXXXX";
+const char pass[] = "XXXXX";
 const char ServerMQTT[] = "192.168.1.100";
 
 WiFiClient net;
@@ -326,7 +326,7 @@ void setup() {
 
   // Upload Over The Air
   ArduinoOTA.setHostname("Afficheur");
-  ArduinoOTA.setPassword((const char *)"Jeff");
+  ArduinoOTA.setPassword((const char *)"XXXX");
   ArduinoOTA.begin();
 
   // Declaration Px matrix librairie
