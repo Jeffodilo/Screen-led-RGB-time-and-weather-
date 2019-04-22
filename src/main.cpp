@@ -20,7 +20,7 @@ String monthtext;
 String temptext;
 String intensite;
 String icon_index;
-int brightness = 1; // gestion de l'extinction de l'écran
+int brightness = 1; // gestion de l'extinction de l'écran, 1 = Ecran ON
 
 #include <PxMatrix.h>
 #include <Ticker.h>
@@ -244,22 +244,16 @@ void messageReceived(String &topic, String &payload) {
   }
 
   else if (topic == "afficheur/meteo") {
-    //icon_index = payload.toInt();
+  //icon_index = payload.toInt();
     icon_index = payload;
   }
 
-  // a la nuit tombee, on baisse la luminosite au mini
+  // a la nuit tombee, on eteint l'afficheur
   else if (topic == "afficheur/brightness") {
     brightness = payload.toInt();
+    }
 
-      //if (brightness == 0) {
-      //  display.setBrightness(0);
-      //}
-      //else {
-      //  display.setBrightness(150);
-      //}
-  }
-
+	//	Ecran On	
   if (brightness == 1){
 
   Serial.println("Nouveau message :  " + payload);
@@ -316,7 +310,7 @@ void messageReceived(String &topic, String &payload) {
 
 } // fin du if
 else {
-display.clearDisplay(); // on eteind lecran pour la nuit
+display.clearDisplay(); // on eteint l'afficheur pour la nuit
 }
 
 }
