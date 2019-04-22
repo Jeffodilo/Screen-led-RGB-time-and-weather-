@@ -2,13 +2,12 @@
 #include <ESP8266WiFi.h>
 #include <MQTT.h>
 #include <Adafruit_GFX.h>
+#include <ArduinoOTA.h> //platformio run --target upload
 #include <Fonts/FreeSansBold9pt7b.h>
-#include <Fonts/FreeSerifBold9pt7b.h>
 
-
-const char ssid[] = "XXXXXXX";
-const char pass[] = "XXXXXXX";
-const char ServerMQTT[] = "192.168.X.X";
+const char ssid[] = "Wifi_Jeff";
+const char pass[] = "29031978";
+const char ServerMQTT[] = "192.168.1.100";
 
 WiFiClient net;
 MQTTClient client;
@@ -21,6 +20,7 @@ String monthtext;
 String temptext;
 String intensite;
 String icon_index;
+int brightness = 1; // gestion de l'extinction de l'écran
 
 #include <PxMatrix.h>
 #include <Ticker.h>
@@ -31,7 +31,7 @@ Ticker display_ticker;
 #define P_B 4
 #define P_C 15
 #define P_D 12
-#define P_E 0
+//#define P_E 0
 #define P_OE 2
 
 uint8_t display_draw_time=30; //10-50 is usually fine
@@ -143,7 +143,7 @@ uint16_t static weather_Snow[] = {
   0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0xffffff, 0xffffff, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
 };
 
-// Drizzle
+// Drizzle : bruine
 uint16_t static weather_Drizzle[] = {
   0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000,
   0x000000, 0x000000, 0xffffff, 0xffffff, 0xffffff, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0xffffff, 0xffffff, 0xffffff, 0x000000, 0x000000,
@@ -183,7 +183,6 @@ uint16_t static weather_Thunderstorm[] = {
 
 void draw_weather_icon(int x, int y, uint16_t *weather, int imageHeight, int imageWidth)
 {
-
   //int imageHeight = 13;
   //int imageWidth = 13;
 
@@ -192,10 +191,8 @@ void draw_weather_icon(int x, int y, uint16_t *weather, int imageHeight, int ima
   {
     for (int xx = 0; xx < imageWidth; xx++)
     {
-
       display.drawPixel(xx + x , yy + y, weather[counter]);
       counter++;
-
     }
   }
 }
@@ -253,18 +250,21 @@ void messageReceived(String &topic, String &payload) {
 
   // a la nuit tombee, on baisse la luminosite au mini
   else if (topic == "afficheur/brightness") {
-    int brightness = payload.toInt();
+    brightness = payload.toInt();
 
-      if (brightness == 0) {
-        display.setBrightness(0);
-      }
-      else {
-        display.setBrightness(150);
-      }
+      //if (brightness == 0) {
+      //  display.setBrightness(0);
+      //}
+      //else {
+      //  display.setBrightness(150);
+      //}
   }
+
+  if (brightness == 1){
 
   Serial.println("Nouveau message :  " + payload);
   display.clearDisplay();
+  display.setBrightness(50);
   //display.setBrightness(200);
 
   // Affichage Heure
@@ -276,10 +276,12 @@ void messageReceived(String &topic, String &payload) {
   // Affichage Day et month
   display.setFont();
   display.setTextColor(myCYAN);
-  display.setCursor(52,2);
+  display.setCursor(52,1);
   display.print(daytext);
-  display.drawLine(53,17,60,10, myCYAN);
-  display.setCursor(52,19);
+  // ligne de separation
+  //display.drawLine(53,17,60,10, myCYAN);
+  display.drawLine(52,9,61,9, myCYAN);
+  display.setCursor(52,11);
   display.print(monthtext);
 
   // Affichage temperature
@@ -312,6 +314,11 @@ void messageReceived(String &topic, String &payload) {
   draw_weather_icon(34, 16, weather_Thunderstorm, 15, 15);
   }
 
+} // fin du if
+else {
+display.clearDisplay(); // on eteind lecran pour la nuit
+}
+
 }
 
 void setup() {
@@ -322,6 +329,11 @@ void setup() {
   client.begin(ServerMQTT, net);
   client.onMessage(messageReceived);
   connect();
+
+  // Upload Over The Air
+  ArduinoOTA.setHostname("Afficheur");
+  ArduinoOTA.setPassword((const char *)"Jeff");
+  ArduinoOTA.begin();
 
   // Declaration Px matrix librairie
   display.begin(16);
@@ -344,4 +356,5 @@ void loop() {
   if (!client.connected()) {
     connect();
   }
+  ArduinoOTA.handle();
 }
